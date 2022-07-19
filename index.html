@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            margin-left: 10px;
+        }
+
+        .image {
+            display: block;
+            position: relative;
+            width: 300px;
+            height: auto;
+        }
+
+        .merged-image {
+            display: block;
+            position: relative;
+            width: 100vw;
+            height: auto;
+        }
+
+        #canvasContainer {
+            width:100%;
+            height:600px;
+        }
+
+        canvas {
+            display: block;
+            position: relative;
+            height: auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <title>Merger</title>
+</head>
+<body>
+    <br>
+
+    <input id="file-image1" type="file"/>
+    <br>
+    <br>
+
+    <img class="image" id="image1"/>
+    <br>
+    <br>
+
+    <input id="file-image2" type="file"/>
+    <br>
+
+    <br />
+    <img class="image" id="image2"/>
+    <br />
+    <br />
+
+    <input id="btn-merge" type="button" value="Merge!"/>
+    <br />
+    <br />
+
+    <img class="merged-image hidden" id='merged-image'/>
+    <div id="canvasContainer">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+
+        function imageIsLoaded(e, imageSelector) {
+            document.getElementById(imageSelector).src = e.target.result;
+        };
+
+        function read(el) {
+            // console.log('el', el)
+            let reader = new FileReader();
+            let imageSelector = el.target.id.split('-')[1];
+            console.log('imageSelector', imageSelector)
+
+            if (this.files && this.files[0]) {
+                reader.onload = function(e) {
+                    imageIsLoaded(e, imageSelector)
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        }
+
+        function merge() {
+            let canvas = document.getElementById('canvas');
+            let ctx = canvas.getContext('2d');
+            let imageObj1 = new Image();
+            let imageObj2 = new Image();
+
+            imageObj1.src = document.getElementById('image1').src;
+            imageObj1.onload = function() {
+                console.log('image1', this.width, this.height)
+                let img1_width = this.width;
+                let img1_height = this.height;
+                ratio = this.height / this.width;
+                ctx.globalAlpha = 1;
+
+
+                imageObj2.src = document.getElementById('image2').src;
+                imageObj2.onload = function() {
+                    console.log('image2', this.width, this.height)
+                    let img2_width = this.width;
+                    let img2_height = this.height;
+
+                    document.getElementById('canvas').width = img1_width + img2_width* img1_height/img2_height;
+                    document.getElementById('canvas').height = img1_height;
+                    document.getElementById('canvas').classList.add('hidden');
+
+                    ctx.globalAlpha = 1;
+
+                    // ctx.drawImage(imageObj, 0, 0, width, height);
+                    ctx.drawImage(imageObj1, 0, 0, img1_width, img1_height);
+                    console.log(img1_width, img1_height, img2_width, img2_height)
+                    console.log(img2_width * img2_height/img1_height)
+
+
+                    ctx.drawImage(imageObj2, img1_width, 0, img2_width * img1_height/img2_height, img1_height);
+
+
+                    let img = canvas.toDataURL('image/jpeg');
+                    document.getElementById('merged-image').src = img;
+                    document.getElementById('merged-image').classList.remove('hidden');
+                }
+            };
+        }
+
+        document.getElementById('file-image1').onchange = read;
+        document.getElementById('file-image2').onchange = read;
+
+        document.getElementById('btn-merge').onclick = merge;
+
+    </script>
+</body>
+</html>
