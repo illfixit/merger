@@ -18,18 +18,21 @@
 
         body {
             padding: 1.25rem;
+            max-width: 75rem;
+            margin: 0 auto;
         }
 
-        .upload-row {
-            display: flex;
+        .upload-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 1.25rem;
-            align-items: flex-start;
             margin-bottom: 1.25rem;
+            max-width: 26.25rem;
         }
 
         .upload-area {
-            width: 12.5rem;
-            height: 12.5rem;
+            width: 100%;
+            aspect-ratio: 1;
             border: 3px dashed #ccc;
             border-radius: 0.5rem;
             display: flex;
@@ -39,8 +42,28 @@
             transition: border-color 0.3s, background-color 0.3s;
             position: relative;
             background-color: #fafafa;
-            flex-shrink: 0;
-            max-width: 100%;
+        }
+
+        .upload-area#upload-area-2 {
+            grid-column: 1 / 2;
+        }
+
+        @media (min-width: 48rem) {
+            .upload-container {
+                max-width: 31.25rem;
+            }
+        }
+
+        @media (min-width: 64rem) {
+            .upload-container {
+                max-width: 37.5rem;
+            }
+        }
+
+        @media (min-width: 80rem) {
+            .upload-container {
+                max-width: 43.75rem;
+            }
         }
 
         .upload-area:hover {
@@ -130,20 +153,19 @@
 </head>
 
 <body>
-    <div class="upload-row">
+    <div class="upload-container">
         <div class="upload-area" id="upload-area-1">
             <input id="file-image1" type="file" />
         </div>
         <div class="upload-area disabled" id="upload-area-3">
             <input id="file-image3" type="file" disabled />
         </div>
+        <div class="upload-area disabled" id="upload-area-2">
+            <input id="file-image2" type="file" disabled />
+        </div>
     </div>
 
-    <div class="upload-area disabled" id="upload-area-2" style="margin-top: 20px;">
-        <input id="file-image2" type="file" disabled />
-    </div>
-
-    <input id="btn-merge" type="button" value="Merge!" style="margin-top: 20px;" />
+    <input id="btn-merge" type="button" value="Merge!" style="margin-top: 1.25rem;" />
 
     <img class="merged-image hidden" id='merged-image' />
     <div id="canvasContainer">
