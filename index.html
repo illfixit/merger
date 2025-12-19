@@ -11,6 +11,11 @@
             margin: 0;
         }
 
+        html,
+        body {
+            overflow-x: hidden;
+        }
+
         body {
             padding: 20px;
         }
@@ -23,7 +28,7 @@
         }
 
         .upload-area {
-            width: 300px;
+            width: 200px;
             height: 200px;
             border: 3px dashed #ccc;
             border-radius: 8px;
@@ -34,6 +39,8 @@
             transition: border-color 0.3s, background-color 0.3s;
             position: relative;
             background-color: #fafafa;
+            flex-shrink: 0;
+            max-width: 100%;
         }
 
         .upload-area:hover {
@@ -98,7 +105,9 @@
         .merged-image {
             display: block;
             position: relative;
-            width: 100vw;
+            width: 100%;
+            max-width: 100%;
+            margin-top: 20px;
             height: auto;
         }
 
@@ -217,7 +226,7 @@
             }
 
             let secondImage = img3Element || img2Element;
-            let isHorizontal = !!img3Element;
+            let isHorizontal = !!img3Element; // true if image3 exists (right side)
 
             if (!secondImage) {
                 alert('Please upload a second image');
