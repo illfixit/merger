@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,7 +9,83 @@
         * {
             box-sizing: border-box;
             margin: 0;
-            margin-left: 10px;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        .upload-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            width: 300px;
+            height: 200px;
+            border: 3px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+            position: relative;
+            background-color: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #999;
+            background-color: #f0f0f0;
+        }
+
+        .upload-area.disabled {
+            border-color: #e0e0e0;
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .upload-area.disabled:hover {
+            border-color: #e0e0e0;
+            background-color: #f5f5f5;
+        }
+
+        .upload-area::before {
+            content: '+';
+            font-size: 72px;
+            color: #ccc;
+            line-height: 1;
+        }
+
+        .upload-area.has-image::before {
+            display: none;
+        }
+
+        .upload-area.disabled::before {
+            color: #e0e0e0;
+        }
+
+        .upload-area .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-area.disabled input[type="file"] {
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
         .image {
@@ -26,8 +103,8 @@
         }
 
         #canvasContainer {
-            width:100%;
-            height:600px;
+            width: 100%;
+            height: 600px;
         }
 
         canvas {
@@ -42,30 +119,24 @@
     </style>
     <title>Merger</title>
 </head>
+
 <body>
-    <br>
+    <div class="upload-row">
+        <div class="upload-area" id="upload-area-1">
+            <input id="file-image1" type="file" />
+        </div>
+        <div class="upload-area disabled" id="upload-area-3">
+            <input id="file-image3" type="file" disabled />
+        </div>
+    </div>
 
-    <input id="file-image1" type="file"/>
-    <br>
-    <br>
+    <div class="upload-area disabled" id="upload-area-2" style="margin-top: 20px;">
+        <input id="file-image2" type="file" disabled />
+    </div>
 
-    <img class="image" id="image1"/>
-    <br>
-    <br>
+    <input id="btn-merge" type="button" value="Merge!" style="margin-top: 20px;" />
 
-    <input id="file-image2" type="file"/>
-    <br>
-
-    <br />
-    <img class="image" id="image2"/>
-    <br />
-    <br />
-
-    <input id="btn-merge" type="button" value="Merge!"/>
-    <br />
-    <br />
-
-    <img class="merged-image hidden" id='merged-image'/>
+    <img class="merged-image hidden" id='merged-image' />
     <div id="canvasContainer">
         <canvas id="canvas"></canvas>
     </div>
@@ -73,8 +144,48 @@
     <script>
 
         function imageIsLoaded(e, imageSelector) {
-            document.getElementById(imageSelector).src = e.target.result;
+            const uploadAreaId = 'upload-area-' + imageSelector.replace('image', '');
+            const uploadArea = document.getElementById(uploadAreaId);
+
+            const existingImg = uploadArea.querySelector('.preview-image');
+            if (existingImg) {
+                existingImg.remove();
+            }
+
+            const img = document.createElement('img');
+            img.className = 'preview-image';
+            img.src = e.target.result;
+            img.id = imageSelector;
+            uploadArea.insertBefore(img, uploadArea.firstChild);
+            uploadArea.classList.add('has-image');
+
+            if (imageSelector === 'image1') {
+                enableUploadArea('file-image2');
+                enableUploadArea('file-image3');
+            }
+
+            if (imageSelector === 'image2') {
+                disableUploadArea('file-image3');
+            }
+
+            if (imageSelector === 'image3') {
+                disableUploadArea('file-image2');
+            }
         };
+
+        function enableUploadArea(fileInputId) {
+            const input = document.getElementById(fileInputId);
+            const uploadArea = input.parentElement;
+            uploadArea.classList.remove('disabled');
+            input.disabled = false;
+        }
+
+        function disableUploadArea(fileInputId) {
+            const input = document.getElementById(fileInputId);
+            const uploadArea = input.parentElement;
+            uploadArea.classList.add('disabled');
+            input.disabled = true;
+        }
 
         function read(el) {
             // console.log('el', el)
@@ -83,7 +194,7 @@
             console.log('imageSelector', imageSelector)
 
             if (this.files && this.files[0]) {
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     imageIsLoaded(e, imageSelector)
                 };
                 reader.readAsDataURL(this.files[0]);
@@ -96,35 +207,54 @@
             let imageObj1 = new Image();
             let imageObj2 = new Image();
 
-            imageObj1.src = document.getElementById('image1').src;
-            imageObj1.onload = function() {
-                console.log('image1', this.width, this.height)
+            const img1Element = document.getElementById('image1');
+            const img2Element = document.getElementById('image2');
+            const img3Element = document.getElementById('image3');
+
+            if (!img1Element) {
+                alert('Please upload the first image');
+                return;
+            }
+
+            let secondImage = img3Element || img2Element;
+            let isHorizontal = !!img3Element;
+
+            if (!secondImage) {
+                alert('Please upload a second image');
+                return;
+            }
+
+            imageObj1.src = img1Element.src;
+            imageObj1.onload = function () {
+                console.log('image1', this.width, this.height);
                 let img1_width = this.width;
                 let img1_height = this.height;
-                ratio = this.height / this.width;
-                ctx.globalAlpha = 1;
 
-
-                imageObj2.src = document.getElementById('image2').src;
-                imageObj2.onload = function() {
-                    console.log('image2', this.width, this.height)
+                imageObj2.src = secondImage.src;
+                imageObj2.onload = function () {
+                    console.log('image2', this.width, this.height);
                     let img2_width = this.width;
                     let img2_height = this.height;
 
-                    document.getElementById('canvas').width = img1_width + img2_width* img1_height/img2_height;
-                    document.getElementById('canvas').height = img1_height;
-                    document.getElementById('canvas').classList.add('hidden');
+                    if (isHorizontal) {
+                        let scaledImg2Width = img2_width * img1_height / img2_height;
+                        canvas.width = img1_width + scaledImg2Width;
+                        canvas.height = img1_height;
 
-                    ctx.globalAlpha = 1;
+                        ctx.globalAlpha = 1;
+                        ctx.drawImage(imageObj1, 0, 0, img1_width, img1_height);
+                        ctx.drawImage(imageObj2, img1_width, 0, scaledImg2Width, img1_height);
+                    } else {
+                        let scaledImg2Height = img2_height * img1_width / img2_width;
+                        canvas.width = img1_width;
+                        canvas.height = img1_height + scaledImg2Height;
 
-                    // ctx.drawImage(imageObj, 0, 0, width, height);
-                    ctx.drawImage(imageObj1, 0, 0, img1_width, img1_height);
-                    console.log(img1_width, img1_height, img2_width, img2_height)
-                    console.log(img2_width * img2_height/img1_height)
+                        ctx.globalAlpha = 1;
+                        ctx.drawImage(imageObj1, 0, 0, img1_width, img1_height);
+                        ctx.drawImage(imageObj2, 0, img1_height, img1_width, scaledImg2Height);
+                    }
 
-
-                    ctx.drawImage(imageObj2, img1_width, 0, img2_width * img1_height/img2_height, img1_height);
-
+                    canvas.classList.add('hidden');
 
                     let img = canvas.toDataURL('image/jpeg');
                     document.getElementById('merged-image').src = img;
@@ -135,9 +265,11 @@
 
         document.getElementById('file-image1').onchange = read;
         document.getElementById('file-image2').onchange = read;
+        document.getElementById('file-image3').onchange = read;
 
         document.getElementById('btn-merge').onclick = merge;
 
     </script>
 </body>
+
 </html>
