@@ -101,7 +101,7 @@
         .upload-area .preview-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 0.3125rem;
         }
 
@@ -166,6 +166,7 @@
     </div>
 
     <input id="btn-merge" type="button" value="Merge!" style="margin-top: 1.25rem;" />
+    <input id="btn-continue" type="button" value="Add more!" class="hidden" style="margin-top: 1.25rem;" />
 
     <img class="merged-image hidden" id='merged-image' />
     <div id="canvasContainer">
@@ -290,8 +291,45 @@
                     let img = canvas.toDataURL('image/jpeg');
                     document.getElementById('merged-image').src = img;
                     document.getElementById('merged-image').classList.remove('hidden');
+
+                    // Hide Merge! button and show Merge more! button
+                    document.getElementById('btn-merge').classList.add('hidden');
+                    document.getElementById('btn-continue').classList.remove('hidden');
                 }
             };
+        }
+
+        function continueFromMerged() {
+            const mergedImage = document.getElementById('merged-image');
+            const mergedImageSrc = mergedImage.src;
+
+            // Clear all upload areas
+            ['upload-area-1', 'upload-area-2', 'upload-area-3'].forEach(areaId => {
+                const area = document.getElementById(areaId);
+                const existingImg = area.querySelector('.preview-image');
+                if (existingImg) {
+                    existingImg.remove();
+                }
+                area.classList.remove('has-image');
+            });
+
+            // Set merged image as image1
+            const uploadArea1 = document.getElementById('upload-area-1');
+            const img = document.createElement('img');
+            img.className = 'preview-image';
+            img.src = mergedImageSrc;
+            img.id = 'image1';
+            uploadArea1.insertBefore(img, uploadArea1.firstChild);
+            uploadArea1.classList.add('has-image');
+
+            // Enable image2 and image3
+            enableUploadArea('file-image2');
+            enableUploadArea('file-image3');
+
+            // Hide merged image and Merge more! button, show Merge! button
+            mergedImage.classList.add('hidden');
+            document.getElementById('btn-continue').classList.add('hidden');
+            document.getElementById('btn-merge').classList.remove('hidden');
         }
 
         document.getElementById('file-image1').onchange = read;
@@ -299,6 +337,7 @@
         document.getElementById('file-image3').onchange = read;
 
         document.getElementById('btn-merge').onclick = merge;
+        document.getElementById('btn-continue').onclick = continueFromMerged;
 
     </script>
 </body>
