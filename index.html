@@ -16,6 +16,46 @@
             overflow-x: hidden;
         }
 
+        html {
+            background: linear-gradient(135deg, #f8f5fc 0%, #eff8ff 100%);
+            min-height: 100vh;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            html {
+                background: linear-gradient(135deg, #2b2a2d 0%, #8978ed 100%);
+            }
+
+            .upload-area {
+                background-color: #0f0f0f;
+                border-color: #444;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            }
+
+            .upload-area:hover {
+                border-color: #667eea;
+                background-color: #1a1a1a;
+            }
+
+            .upload-area.disabled {
+                background-color: #0f0f0f;
+                border-color: #333;
+            }
+
+            .upload-area.disabled:hover {
+                border-color: #333;
+                background-color: #0f0f0f;
+            }
+
+            .upload-area::before {
+                color: #555;
+            }
+
+            .upload-area.disabled::before {
+                color: #333;
+            }
+        }
+
         body {
             padding: 1.25rem;
             max-width: 75rem;
@@ -33,7 +73,7 @@
         .upload-area {
             width: 100%;
             aspect-ratio: 1;
-            border: 3px dashed #ccc;
+            border: 3px dashed #999;
             border-radius: 0.5rem;
             display: flex;
             align-items: center;
@@ -41,7 +81,8 @@
             cursor: pointer;
             transition: border-color 0.3s, background-color 0.3s;
             position: relative;
-            background-color: #fafafa;
+            background-color: #f5f5f5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .upload-area#upload-area-2 {
@@ -67,31 +108,37 @@
         }
 
         .upload-area:hover {
-            border-color: #999;
-            background-color: #f0f0f0;
+            border-color: #667eea;
+            background-color: #f9f9ff;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
         }
 
         .upload-area.disabled {
-            border-color: #e0e0e0;
-            background-color: #f5f5f5;
+            border-color: #d0d0d0;
+            background-color: #f9f9f9;
             cursor: not-allowed;
-            opacity: 0.5;
+            opacity: 0.6;
         }
 
         .upload-area.disabled:hover {
-            border-color: #e0e0e0;
-            background-color: #f5f5f5;
+            border-color: #d0d0d0;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .upload-area::before {
             content: '+';
             font-size: 4.5rem;
-            color: #ccc;
+            color: #999;
             line-height: 1;
         }
 
         .upload-area.has-image::before {
             display: none;
+        }
+
+        .upload-area.has-image {
+            background-color: #555;
         }
 
         .upload-area.disabled::before {
@@ -148,6 +195,47 @@
         .hidden {
             display: none;
         }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.25rem;
+        }
+
+        #btn-merge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        #btn-merge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        #btn-merge:active {
+            transform: translateY(0);
+        }
+
+        #btn-continue {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(245, 87, 108, 0.3);
+        }
+
+        #btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        #btn-continue:active {
+            transform: translateY(0);
+        }
     </style>
     <title>Merger</title>
 </head>
@@ -165,8 +253,8 @@
         </div>
     </div>
 
-    <input id="btn-merge" type="button" value="Merge!" style="margin-top: 1.25rem;" />
-    <input id="btn-continue" type="button" value="Add more!" class="hidden" style="margin-top: 1.25rem;" />
+    <input id="btn-merge" type="button" value="Merge!" class="btn" />
+    <input id="btn-continue" type="button" value="Add more!" class="btn hidden" />
 
     <img class="merged-image hidden" id='merged-image' />
     <div id="canvasContainer">
